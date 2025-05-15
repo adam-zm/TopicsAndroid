@@ -1,16 +1,26 @@
 package com.example.topics
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -21,6 +31,8 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -28,6 +40,10 @@ import androidx.navigation.toRoute
 import com.example.topics.home.HomeScreen
 import com.example.topics.topics.TopicScreen
 import com.example.topics.ui.theme.TopicsTheme
+import dev.chrisbanes.haze.HazeStyle
+import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.rememberHazeState
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,51 +51,18 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TopicsTheme {
-                var currentPage = remember {
+                val currentPage = remember {
                     mutableIntStateOf(0)
                 }
                 val navController = rememberNavController()
 
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    bottomBar = {
-                        NavigationBar {
-                            NavigationBarItem(
-                                selected = currentPage.intValue == 0,
-                                onClick = {
-                                    navController.navigate(Routes.HomeScreen){
-                                        popUpTo(0)
-                                    }
-                                },
-                                icon = {
-                                    Icon(Icons.Filled.Home, "Home")
-                                },
-                                label = {
-                                    Text("Home")
-                                }
-                            )
-                            NavigationBarItem(
-                                selected = currentPage.intValue == 1,
-                                onClick = {
-                                    navController.navigate(Routes.SettingsScreen){
-                                        popUpTo(0)
-                                    }
-                                },
-                                icon = {
-                                    Icon(Icons.Filled.Settings, "Settings")
-                                },
-                                label = {
-                                    Text("Settings")
-                                }
-                            )
-                        }
-                    }
-                ) { innerPadding ->
+                Column {
                     NavHost(
                         navController = navController,
                         startDestination = Routes.HomeScreen,
                         modifier = Modifier
-                            .padding(innerPadding)
+                            .height(1000.dp)
+//                            .padding(padding)
                     ){
                         composable<Routes.HomeScreen>{
                             HomeScreen(
@@ -102,7 +85,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun SettingsScreen(modifier: Modifier = Modifier) {
+    fun SettingsScreen() {
         Column(
             modifier = Modifier
                 .fillMaxSize(),

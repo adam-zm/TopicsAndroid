@@ -67,7 +67,7 @@ fun TopicScreen(
             TopAppBar(
                 title = {
                     Text(
-                        topicScreenViewModel.topic.value.title.toString(),
+                        topicScreenViewModel.topic.value.title,
                         modifier = Modifier
                             .padding(start = 20.dp),
                         style = TextStyle(

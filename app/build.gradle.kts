@@ -67,4 +67,7 @@ dependencies {
 
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
+
+    implementation(libs.haze)
+    implementation(libs.haze.materials)
 }

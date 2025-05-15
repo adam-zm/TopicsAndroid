@@ -11,7 +11,7 @@ import retrofit2.HttpException
 
 
 class HomeScreenViewModel(
-    val databaseConnector: DatabaseConnector
+    private val databaseConnector: DatabaseConnector
 ): ViewModel() {
     var topics = mutableStateOf<List<Topic>>(listOf())
     val isRefreshing = mutableStateOf(false)
@@ -20,7 +20,11 @@ class HomeScreenViewModel(
     fun fetchTopics(){
         viewModelScope.launch{
             isRefreshing.value = true
-            topics.value = databaseConnector.fetchTopics()
+            try{
+                topics.value = databaseConnector.fetchTopics()
+            }catch (e: HttpException){
+                Log.e("HomeViewModel", "Fetch topics ${e.message()}")
+            }
             isRefreshing.value = false
         }
     }
@@ -30,7 +34,7 @@ class HomeScreenViewModel(
             try {
                 databaseConnector.addNewTopic(title)
             }catch (e: HttpException){
-                Log.e("HomeViewModel new topic", "${e.message()}")
+                Log.e("HomeViewModel new topic", e.message())
             }
         }
     }
