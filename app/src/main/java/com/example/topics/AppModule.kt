@@ -11,7 +11,7 @@ import org.koin.dsl.module
 val appModule = module {
     singleOf(::DatabaseConnector)
     single{
-        HttpClient().service
+        HttpClient().getService()
     }
     viewModelOf(::HomeScreenViewModel)
     viewModelOf(::TopicScreenViewModel)

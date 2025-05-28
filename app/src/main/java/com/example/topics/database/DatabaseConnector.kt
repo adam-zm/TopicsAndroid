@@ -10,13 +10,20 @@ class DatabaseConnector(
     val apiClient: ApiClient
 ){
     suspend fun fetchTopics(): List<Topic> {
-        val response = apiClient.getTopics()
+//        val response = apiClient.getTopics()
+//
+//        return if(response.isSuccessful && !response.body().isNullOrEmpty()){
+//            response.body()!!
+//        }else{
+//            emptyList()
+//        }
+        val topics = mutableListOf<Topic>()
 
-        return if(response.isSuccessful && !response.body().isNullOrEmpty()){
-            response.body()!!
-        }else{
-            emptyList()
+        for(i in 0..15){
+            topics.add(Topic(id = i, title = "This is a topic $i"))
         }
+
+        return topics
     }
 
     suspend fun addNewTopic(title: String) {

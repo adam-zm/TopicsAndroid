@@ -2,10 +2,13 @@ package com.example.topics.home
 
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.topics.database.DatabaseConnector
 import com.example.topics.Topic
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 
@@ -20,6 +23,7 @@ class HomeScreenViewModel(
     fun fetchTopics(){
         viewModelScope.launch{
             isRefreshing.value = true
+            delay(1000)
             try{
                 topics.value = databaseConnector.fetchTopics()
             }catch (e: HttpException){
