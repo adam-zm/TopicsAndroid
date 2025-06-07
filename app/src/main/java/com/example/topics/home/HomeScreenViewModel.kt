@@ -19,6 +19,7 @@ class HomeScreenViewModel(
     var topics = mutableStateOf<List<Topic>>(listOf())
     val isRefreshing = mutableStateOf(false)
     var newTopicTitle = mutableStateOf("")
+    var useHapticFeedback = mutableStateOf(true)
 
     fun fetchTopics(){
         viewModelScope.launch{

@@ -70,4 +70,7 @@ dependencies {
 
     implementation(libs.haze)
     implementation(libs.haze.materials)
+
+    //DataStore
+    implementation(libs.androidx.datastore.preferences)
 }

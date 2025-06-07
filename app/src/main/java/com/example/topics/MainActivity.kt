@@ -1,5 +1,6 @@
 package com.example.topics
 
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -46,6 +47,10 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.core.view.HapticFeedbackConstantsCompat
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -57,6 +62,9 @@ import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
+import kotlinx.coroutines.flow.map
+
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.R)
@@ -64,11 +72,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val display = LocalContext.current.display
-            val supportedModes = display.supportedModes
-            for (mode in supportedModes) {
-                Log.d("DisplayInfo", "Supported mode: ${mode.physicalWidth}x${mode.physicalHeight}, ${mode.refreshRate}Hz")
-            }
+
+//            val USE_HAPTIC_FEEDBACK = booleanPreferencesKey("use_haptic_feedback")
+//            val useHapticFeedbackBool = LocalContext.current.dataStore.data.map { prefs ->
+//                prefs[USE_HAPTIC_FEEDBACK] == true
+//            }
 
             TopicsTheme {
                 val currentPage = remember {
