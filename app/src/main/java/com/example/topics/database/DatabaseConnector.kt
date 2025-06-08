@@ -20,7 +20,7 @@ class DatabaseConnector(
         val topics = mutableListOf<Topic>()
 
         for(i in 0..15){
-            topics.add(Topic(id = i, title = "This is a topic $i", text = "This is an example topic text to see how " +
+            topics.add(Topic(id = i, title = "This is topic $i", text = "This is an example text to see how " +
                     "the text cutting functionality works"))
         }
 
@@ -46,7 +46,7 @@ class DatabaseConnector(
 //            Topic(id = -1, title = "", text = "")
 //        }
 
-        val topic = Topic(id = id, title = "This is a topic $id", text = "This is an example topic text to see how " +
+        val topic = Topic(id = id, title = "This is a topic $id", text = "This is an example text to see how " +
                 "the text cutting functionality works")
 
         if (topic.title.length > 25) {
@@ -58,9 +58,7 @@ class DatabaseConnector(
     }
 
     suspend fun deleteTopicById(id: Int){
-        //TODO: implement did succeed checking
-
-        val response = apiClient.deleteTopicById(id)
+//        val response = apiClient.deleteTopicById(id)
     }
 //
 //    suspend fun addNewComment(topicId: Int, text: String) {

@@ -25,7 +25,7 @@
 |------|---------|
 | [Jetpack Compose](https://developer.android.com/jetpack/compose) | Declarative UI toolkit for modern Android apps |
 | [Koin](https://insert-koin.io/) | Lightweight dependency injection |
-| [Haze](https://github.com/ehsanmomeni/Haze) | Easy blur effect implementation |
+| [Haze](https://github.com/chrisbanes/haze) | Easy blur effect implementation |
 
 ---
 

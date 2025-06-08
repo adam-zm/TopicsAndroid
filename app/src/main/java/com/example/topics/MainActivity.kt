@@ -68,7 +68,7 @@ import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.flow.map
 import org.koin.compose.koinInject
 
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
+//val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.R)

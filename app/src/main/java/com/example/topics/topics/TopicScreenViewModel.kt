@@ -32,19 +32,19 @@ class TopicScreenViewModel(
         }
     }
 
-    fun deleteTopicById() {
-        viewModelScope.launch {
-            if (topic.value.id != -1) {
-                try {
-                    databaseConnector.deleteTopicById(topic.value.id)
-                } catch (e: HttpException) {
-                    Log.e("HomeViewModel Delete", e.message())
-                }
-            } else {
-                Log.e("TopicScreenViewModel", "No topic id to delete")
-            }
-        }
-    }
+//    fun deleteTopicById() {
+//        viewModelScope.launch {
+//            if (topic.value.id != -1) {
+//                try {
+//                    databaseConnector.deleteTopicById(topic.value.id)
+//                } catch (e: HttpException) {
+//                    Log.e("HomeViewModel Delete", e.message())
+//                }
+//            } else {
+//                Log.e("TopicScreenViewModel", "No topic id to delete")
+//            }
+//        }
+//    }
 
     fun fetchComments(topicId: Int?) {
         if (topicId != null) {
@@ -59,7 +59,10 @@ class TopicScreenViewModel(
                     commentsList.add(
                         Comment(
                             id = i,
-                            content = "Comment number $i",
+                            content = "Lorem ipsum dolor sit amet, " +
+                                    "consectetur adipiscing elit. Maecenas vitae risus id " +
+                                    "neque vehicula sollicitudin eget vitae nulla. " +
+                                    "Aliquam tempus euismod volutpat. Integer sit amet.",
                             topic_id = topicId
                         )
                     )
