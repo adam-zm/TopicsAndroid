@@ -35,7 +35,7 @@
 ![Home Screen](screenshots/home_screen.png)
 
 ### 📝 Topic Details Screen
-![Post Details](screenshots/topic_details.png)
+![Post Details](screenshots/topic_screen.png)
 
 ---
 
