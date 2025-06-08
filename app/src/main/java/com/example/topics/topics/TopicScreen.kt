@@ -25,6 +25,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -105,13 +106,33 @@ fun TopicScreen(
                             .padding(top = padding.calculateTopPadding() + 50.dp)
                     )
                 }
+                item {
+                    Column(
+                        modifier = Modifier
+                            .padding(vertical = 50.dp, horizontal = 30.dp),
+                        verticalArrangement = Arrangement.Top,
+                        horizontalAlignment = Alignment.Start
+                    ){
+                        Text(
+                            text = topicScreenViewModel.topic.value.text,
+                            style = TextStyle(
+                                fontSize = 20.sp,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                        )
+                    }
+                }
                 items(topicScreenViewModel.comments.value) { comment ->
+                    HorizontalDivider(
+                        modifier = Modifier
+                            .padding(15.dp)
+                    )
                     Text(
                         text = comment.content,
                         modifier = Modifier.padding(20.dp),
                         style = TextStyle(
                             color = MaterialTheme.colorScheme.onBackground,
-                            fontSize = 25.sp
+                            fontSize = 17.sp
                         )
                     )
                 }
@@ -137,7 +158,7 @@ fun TopicScreen(
                         color = MaterialTheme.colorScheme.onBackground
                     ),
                     modifier = Modifier
-                        .padding(top = padding.calculateTopPadding() + 15.dp, bottom = 15.dp)
+                        .padding(top = padding.calculateTopPadding() + 25.dp, bottom = 15.dp)
                 )
             }
             Surface(

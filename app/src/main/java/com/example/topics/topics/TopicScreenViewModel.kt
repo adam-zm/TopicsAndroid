@@ -16,7 +16,7 @@ class TopicScreenViewModel(
     val databaseConnector: DatabaseConnector
 ) : ViewModel() {
     val isLoading = mutableStateOf(false)
-    var topic: MutableState<Topic> = mutableStateOf(Topic(id = -1, title = ""))
+    var topic: MutableState<Topic> = mutableStateOf(Topic(id = -1, title = "", text = ""))
     var newCommentText = mutableStateOf("")
     var comments = mutableStateOf(listOf<Comment>())
 
@@ -24,13 +24,7 @@ class TopicScreenViewModel(
         if (id != null) {
             viewModelScope.launch {
                 isLoading.value = true
-//                topic.value = databaseConnector.fetchTopicById(id)
-                topic.value = Topic(id = id, title = "This is topic $id")
-
-                if (topic.value.title.length > 25) {
-                    topic.value.title = topic.value.title.dropLast(topic.value.title.length - 23)
-                    topic.value.title += "..."
-                }
+                topic.value = databaseConnector.fetchTopicById(id)
                 isLoading.value = false
             }
         } else {

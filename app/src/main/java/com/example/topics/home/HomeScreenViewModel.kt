@@ -6,31 +6,34 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.topics.SharedStateHandler
 import com.example.topics.database.DatabaseConnector
 import com.example.topics.Topic
+import com.example.topics.UiState
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 
 
 class HomeScreenViewModel(
-    private val databaseConnector: DatabaseConnector
+    private val databaseConnector: DatabaseConnector,
+    private val sharedStateHandler: SharedStateHandler
 ): ViewModel() {
-    var topics = mutableStateOf<List<Topic>>(listOf())
-    val isRefreshing = mutableStateOf(false)
     var newTopicTitle = mutableStateOf("")
-    var useHapticFeedback = mutableStateOf(true)
 
     fun fetchTopics(){
         viewModelScope.launch{
-            isRefreshing.value = true
+            sharedStateHandler.setIsRefreshing(true)
             delay(1000)
             try{
-                topics.value = databaseConnector.fetchTopics()
+                sharedStateHandler.updateTopics(databaseConnector.fetchTopics())
             }catch (e: HttpException){
                 Log.e("HomeViewModel", "Fetch topics ${e.message()}")
             }
-            isRefreshing.value = false
+            sharedStateHandler.setIsRefreshing(false)
         }
     }
 
@@ -42,6 +45,10 @@ class HomeScreenViewModel(
                 Log.e("HomeViewModel new topic", e.message())
             }
         }
+    }
+
+    fun toggleUseHapticFeedback(useHaptic: Boolean){
+        sharedStateHandler.toggleUseHaptics(useHaptic)
     }
 
     init {

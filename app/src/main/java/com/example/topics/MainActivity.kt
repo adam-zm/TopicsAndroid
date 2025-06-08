@@ -35,6 +35,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -51,11 +52,13 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.topics.home.HomeScreen
+import com.example.topics.settings.SettingsScreen
 import com.example.topics.topics.TopicScreen
 import com.example.topics.ui.theme.TopicsTheme
 import dev.chrisbanes.haze.HazeStyle
@@ -63,6 +66,7 @@ import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.flow.map
+import org.koin.compose.koinInject
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
@@ -79,65 +83,32 @@ class MainActivity : ComponentActivity() {
 //            }
 
             TopicsTheme {
-                val currentPage = remember {
-                    mutableIntStateOf(0)
-                }
+                val sharedStateHandler = koinInject<SharedStateHandler>()
                 val navController = rememberNavController()
 
                 Column {
                     NavHost(
                         navController = navController,
                         startDestination = Routes.HomeScreen,
-                        modifier = Modifier
-                            .height(1000.dp)
-//                            .padding(padding)
                     ){
                         composable<Routes.HomeScreen>{
+                            sharedStateHandler.updateCurrentScreen(0)
                             HomeScreen(
                                 navController = navController
                             )
-                            currentPage.intValue = 0
                         }
                         composable<Routes.SettingsScreen> {
-                            SettingsScreen()
-                            currentPage.intValue = 1
+                            sharedStateHandler.updateCurrentScreen(1)
+                            SettingsScreen(navController = navController)
                         }
                         composable<Routes.TopicScreen> { backStackEntry ->
+                            sharedStateHandler.updateCurrentScreen(3)
                             val topicID = backStackEntry.toRoute<Routes.TopicScreen>().topicId
                             TopicScreen(topicID, navController = navController)
                         }
                     }
                 }
             }
-        }
-    }
-
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    fun SettingsScreen() {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ){
-            val haptic = LocalHapticFeedback.current
-            val sliderState = remember { mutableFloatStateOf(0.4F) }
-
-            Text(
-                "Settings",
-                style = TextStyle(
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-            )
-            Slider(
-                value = sliderState.floatValue,
-                onValueChange = { float ->
-                    sliderState.floatValue = float
-                    haptic.performHapticFeedback(HapticFeedbackType.SegmentTick)
-                }
-            )
         }
     }
 }

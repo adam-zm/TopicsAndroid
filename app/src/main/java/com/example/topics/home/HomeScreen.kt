@@ -28,7 +28,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.AlertDialog
@@ -36,55 +36,41 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.pullToRefresh
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.LineHeightStyle
-import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import com.example.topics.Routes
-import dev.chrisbanes.haze.hazeEffect
-import dev.chrisbanes.haze.hazeSource
+import com.example.topics.SharedStateHandler
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
-import dev.chrisbanes.haze.materials.HazeMaterials
-import dev.chrisbanes.haze.rememberHazeState
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 
 @OptIn(
@@ -94,21 +80,23 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun HomeScreen(
     navController: NavController,
-    viewModel: HomeScreenViewModel = koinViewModel()
+    viewModel: HomeScreenViewModel = koinViewModel(),
+    sharedStateHandler: SharedStateHandler = koinInject<SharedStateHandler>()
 ) {
+    val uiState by sharedStateHandler.uiState.collectAsState()
     val showDialogNewTopic = remember {
         mutableStateOf(false)
     }
     val state = rememberPullToRefreshState()
     val insets = WindowInsets.systemBars.asPaddingValues(LocalDensity.current)
     var statusBarHeight by remember {
-        mutableStateOf(80.dp + insets.calculateBottomPadding())
+        mutableStateOf(90.dp + insets.calculateBottomPadding())
     }
     val animatedStatusBarHeight by animateDpAsState(statusBarHeight)
     val haptic = LocalHapticFeedback.current
     val listState = rememberLazyListState()
 
-    val statusBarMinHeight = 90.dp
+    val statusBarMinHeight = 90.dp + insets.calculateBottomPadding()
     var statusBarMaxHeight = 0.dp
 
     with(LocalDensity.current) {
@@ -129,10 +117,10 @@ fun HomeScreen(
                     .fillMaxWidth()
                     .fillMaxHeight()
                     .pullToRefresh(
-                        isRefreshing = viewModel.isRefreshing.value,
+                        isRefreshing = uiState.isRefreshing,
                         onRefresh = {
                             viewModel.fetchTopics()
-                            if(viewModel.useHapticFeedback.value){
+                            if(uiState.useHapticFeedback){
                                 haptic.performHapticFeedback(HapticFeedbackType.Confirm)
                             }
                         },
@@ -153,7 +141,7 @@ fun HomeScreen(
                         modifier = Modifier
                             .fillMaxSize(),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Start
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
                             "Topics",
@@ -165,10 +153,25 @@ fun HomeScreen(
                                 color = MaterialTheme.colorScheme.primary
                             )
                         )
+                        Surface(
+                            modifier = Modifier
+                                .padding(vertical = 5.dp, horizontal = 20.dp),
+                            shape = RoundedCornerShape(50.dp),
+                            color = MaterialTheme.colorScheme.primaryContainer
+                        ){
+                            Icon(
+                                imageVector = Icons.Filled.Person,
+                                contentDescription = "Profile",
+                                modifier = Modifier
+                                    .padding(10.dp)
+                                    .size(30.dp),
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
+                        }
                     }
                 }
                 items(
-                    viewModel.topics.value
+                    uiState.topics.dropLast(1)
                 ) { topic ->
                     Box(
                         modifier = Modifier
@@ -176,30 +179,102 @@ fun HomeScreen(
                             .padding(horizontal = 20.dp, vertical = 10.dp)
                             .clickable(
                                 onClick = {
-                                    if(viewModel.useHapticFeedback.value){
+                                    if(uiState.useHapticFeedback){
                                         haptic.performHapticFeedback(HapticFeedbackType.Confirm)
                                     }
                                     navController.navigate(Routes.TopicScreen(topic.id))
                                 }
                             )
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(20.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Start
-                        ) {
+                        Column {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(20.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Start
+                            ) {
+                                Text(
+                                    topic.title,
+                                    style = TextStyle(
+                                        color = MaterialTheme.colorScheme.onBackground,
+                                        fontSize = 23.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                )
+                            }
+                            val textLength = topic.text.length
+                            var shortText = topic.text
+                            if(textLength > 45){
+                                shortText = shortText.dropLast(textLength - 45).trimEnd() + "..."
+                            }
                             Text(
-                                topic.title,
+                                text = shortText,
                                 style = TextStyle(
                                     color = MaterialTheme.colorScheme.onBackground,
-                                    fontSize = 23.sp
+                                    fontSize = 17.sp
                                 )
                             )
                         }
+
                     }
-                    HorizontalDivider()
+                    HorizontalDivider(
+                        modifier = Modifier
+                            .padding(10.dp)
+                    )
+                }
+                items(
+                    uiState.topics
+                ) { topic ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp, vertical = 10.dp)
+                            .clickable(
+                                onClick = {
+                                    if(uiState.useHapticFeedback){
+                                        haptic.performHapticFeedback(HapticFeedbackType.Confirm)
+                                    }
+                                    navController.navigate(Routes.TopicScreen(topic.id))
+                                }
+                            )
+                    ) {
+                        Column {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(20.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Start
+                            ) {
+                                Text(
+                                    topic.title,
+                                    style = TextStyle(
+                                        color = MaterialTheme.colorScheme.onBackground,
+                                        fontSize = 23.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                )
+                            }
+                            val textLength = topic.text.length
+                            var shortText = topic.text
+                            if(textLength > 45){
+                                shortText = shortText.dropLast(textLength - 45).trimEnd() + "..."
+                            }
+                            Text(
+                                text = shortText,
+                                style = TextStyle(
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                    fontSize = 17.sp
+                                )
+                            )
+                        }
+
+                    }
+                    HorizontalDivider(
+                        modifier = Modifier
+                            .padding(10.dp)
+                    )
                 }
                 item(
                     key = "bottomPadding"
@@ -255,14 +330,14 @@ fun HomeScreen(
                                                 if (statusBarHeight > statusBarMinHeight && statusBarHeight < statusBarMaxHeight) {
                                                     if (statusBarHeight > statusBarMaxHeight / 2) {
                                                         statusBarHeight = statusBarMaxHeight
-                                                        if(viewModel.useHapticFeedback.value){
+                                                        if(uiState.useHapticFeedback){
                                                             haptic.performHapticFeedback(
                                                                 HapticFeedbackType.GestureEnd
                                                             )
                                                         }
                                                     } else {
                                                         statusBarHeight = statusBarMinHeight
-                                                        if(viewModel.useHapticFeedback.value){
+                                                        if(uiState.useHapticFeedback){
                                                             haptic.performHapticFeedback(
                                                                 HapticFeedbackType.GestureEnd
                                                             )
@@ -280,7 +355,7 @@ fun HomeScreen(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(150.dp),
+                                    .height(110.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.SpaceAround
                             ) {
@@ -293,14 +368,29 @@ fun HomeScreen(
                                                 }
                                             }
                                         )
+                                        .width(50.dp)
+                                        .height(55.dp)
                                 ) {
                                     Icon(
                                         Icons.Outlined.Home,
                                         "Home",
                                         modifier = Modifier
                                             .align(Alignment.Center)
-                                            .size(35.dp)
+                                            .size(45.dp)
+                                            .padding(bottom = 7.dp)
                                     )
+                                    if(uiState.currentScreen == 0){
+                                        Surface(
+                                            modifier = Modifier
+                                                .height(5.dp)
+                                                .width(15.dp)
+                                                .align(Alignment.BottomCenter),
+                                            color = MaterialTheme.colorScheme.primary,
+                                            shape = RoundedCornerShape(30.dp)
+                                        ){
+                                            Box(modifier = Modifier.fillMaxSize())
+                                        }
+                                    }
 //                            Text("Home", modifier = Modifier.align(Alignment.BottomCenter))
                                 }
                                 Box(
@@ -312,22 +402,56 @@ fun HomeScreen(
                                                 }
                                             }
                                         )
+                                        .width(50.dp)
+                                        .height(55.dp)
                                 ) {
                                     Icon(
                                         Icons.Outlined.Settings,
                                         "Settings",
                                         modifier = Modifier
                                             .align(Alignment.Center)
-                                            .size(35.dp)
+                                            .size(45.dp)
+                                            .padding(bottom = 7.dp)
                                     )
+                                    if(uiState.currentScreen == 1){
+                                        Surface(
+                                            modifier = Modifier
+                                                .height(5.dp)
+                                                .width(15.dp)
+                                                .align(Alignment.BottomCenter),
+                                            color = MaterialTheme.colorScheme.primary,
+                                            shape = RoundedCornerShape(30.dp)
+                                        ){
+                                            Box(modifier = Modifier.fillMaxSize())
+                                        }
+                                    }
 //                            Text("Settings", modifier = Modifier.align(Alignment.BottomCenter))
                                 }
                             }
 
-                            Spacer(
+                            HorizontalDivider(
                                 modifier = Modifier
-                                    .height(50.dp)
+                                    .clipToBounds(),
+                                color = MaterialTheme.colorScheme.onBackground,
+                                thickness = 3.dp,
                             )
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 40.dp, vertical = 20.dp)
+                                    .clipToBounds(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ){
+                                Text(
+                                    text = "Quick settings",
+                                    style = TextStyle(
+                                        fontSize = 23.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                )
+                            }
 
                             Row(
                                 modifier = Modifier
@@ -339,11 +463,19 @@ fun HomeScreen(
                             ){
                                 Switch(
                                     onCheckedChange = { isChecked ->
-                                        viewModel.useHapticFeedback.value = isChecked
+                                        viewModel.toggleUseHapticFeedback(isChecked)
+                                        if(!uiState.useHapticFeedback){
+                                            haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
+                                        }
                                     },
-                                    checked = viewModel.useHapticFeedback.value,
+                                    checked = uiState.useHapticFeedback,
                                 )
-                                Text("Use haptic feedback")
+                                Text(
+                                    text = "Use haptic feedback",
+                                    style = TextStyle(
+                                        fontSize = 19.sp
+                                    )
+                                )
                             }
                         }
                     }
@@ -358,7 +490,7 @@ fun HomeScreen(
                     .zIndex(2F)
             ) {
                 AnimatedVisibility(
-                    viewModel.isRefreshing.value,
+                    uiState.isRefreshing,
                     enter = fadeIn(),
                     exit = fadeOut()
                 ) {
