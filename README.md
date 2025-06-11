@@ -38,7 +38,7 @@
 ![Quick Settings](screenshots/quick_settings.png)
 
 ### 📝 Topic Details Screen
-![Post Details](screenshots/topic_details.png)
+![Post Details](screenshots/topic_screen.png)
 
 ---
 
