@@ -11,6 +11,7 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -19,9 +20,12 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsIgnoringVisibility
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.systemBarsIgnoringVisibility
+import androidx.compose.foundation.layout.systemGestures
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -68,7 +72,11 @@ import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import com.example.topics.Routes
 import com.example.topics.SharedStateHandler
+import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
+import dev.chrisbanes.haze.materials.HazeMaterials
+import dev.chrisbanes.haze.rememberHazeState
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
@@ -89,18 +97,19 @@ fun HomeScreen(
     }
     val state = rememberPullToRefreshState()
     val insets = WindowInsets.systemBars.asPaddingValues(LocalDensity.current)
+    val statusBarMinHeight = 90.dp + insets.calculateBottomPadding()
+    var statusBarMaxHeight = 0.dp
     var statusBarHeight by remember {
-        mutableStateOf(90.dp + insets.calculateBottomPadding())
+        mutableStateOf(statusBarMinHeight)
     }
     val animatedStatusBarHeight by animateDpAsState(statusBarHeight)
     val haptic = LocalHapticFeedback.current
     val listState = rememberLazyListState()
 
-    val statusBarMinHeight = 90.dp + insets.calculateBottomPadding()
-    var statusBarMaxHeight = 0.dp
+//    val hazeState = rememberHazeState()
 
     with(LocalDensity.current) {
-        statusBarMaxHeight = LocalWindowInfo.current.containerSize.height.toDp() - 100.dp
+        statusBarMaxHeight = LocalWindowInfo.current.containerSize.height.toDp() - 110.dp
     }
 
     Column(
@@ -116,6 +125,7 @@ fun HomeScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight()
+//                    .hazeSource(hazeState)
                     .pullToRefresh(
                         isRefreshing = uiState.isRefreshing,
                         onRefresh = {
@@ -296,8 +306,10 @@ fun HomeScreen(
                     modifier = Modifier
                         .height(animatedStatusBarHeight)
                         .fillMaxWidth()
+//                        .hazeEffect(hazeState, style = HazeMaterials.ultraThin())
                         .clipToBounds(),
-                    shape = RoundedCornerShape(40.dp),
+                    shape = RoundedCornerShape(30.dp),
+//                    color = Color.Transparent
                     color = MaterialTheme.colorScheme.primaryContainer
                 ) {
                     Row(
@@ -323,11 +335,11 @@ fun HomeScreen(
                                                 statusBarHeight = (statusBarHeight + dragDp)
                                                     .coerceIn(
                                                         statusBarMinHeight,
-                                                        statusBarMaxHeight
+                                                        statusBarMaxHeight + 40.dp
                                                     )
                                             },
                                             onDragEnd = {
-                                                if (statusBarHeight > statusBarMinHeight && statusBarHeight < statusBarMaxHeight) {
+                                                if (statusBarHeight > statusBarMinHeight && statusBarHeight < statusBarMaxHeight + 41.dp) {
                                                     if (statusBarHeight > statusBarMaxHeight / 2) {
                                                         statusBarHeight = statusBarMaxHeight
                                                         if(uiState.useHapticFeedback){

@@ -34,6 +34,9 @@
 ### 🏠 Home Screen
 ![Home Screen](screenshots/home_screen.png)
 
+### 🏠 Home Screen
+![Quick Settings](screenshots/quick_settings.png)
+
 ### 📝 Topic Details Screen
 ![Post Details](screenshots/topic_details.png)
 

@@ -46,7 +46,7 @@ class DatabaseConnector(
 //            Topic(id = -1, title = "", text = "")
 //        }
 
-        val topic = Topic(id = id, title = "This is a topic $id", text = "This is an example text to see how " +
+        val topic = Topic(id = id, title = "This is topic $id", text = "This is an example text to see how " +
                 "the text cutting functionality works")
 
         if (topic.title.length > 25) {

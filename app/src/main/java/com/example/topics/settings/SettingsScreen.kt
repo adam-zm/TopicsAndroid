@@ -121,7 +121,7 @@ fun SettingsScreen(
                     .height(animatedStatusBarHeight)
                     .fillMaxWidth()
                     .clipToBounds(),
-                shape = RoundedCornerShape(40.dp),
+                shape = RoundedCornerShape(30.dp),
                 color = MaterialTheme.colorScheme.primaryContainer
             ) {
                 Row(

@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.topics.Comment
+import com.example.topics.SharedStateHandler
 import com.example.topics.database.DatabaseConnector
 import com.example.topics.Topic
 import kotlinx.coroutines.delay
@@ -13,7 +14,8 @@ import kotlinx.coroutines.launch
 import retrofit2.HttpException
 
 class TopicScreenViewModel(
-    val databaseConnector: DatabaseConnector
+    private val databaseConnector: DatabaseConnector,
+    private val sharedStateHandler: SharedStateHandler
 ) : ViewModel() {
     val isLoading = mutableStateOf(false)
     var topic: MutableState<Topic> = mutableStateOf(Topic(id = -1, title = "", text = ""))
@@ -72,6 +74,12 @@ class TopicScreenViewModel(
             }
         } else {
             Log.e("Topics View Model", "Null id specified")
+        }
+    }
+
+    fun toggleUseHapticFeedback(useHaptic: Boolean){
+        viewModelScope.launch {
+            sharedStateHandler.toggleHapticFeedbackBool(useHaptic)
         }
     }
 

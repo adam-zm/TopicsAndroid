@@ -68,7 +68,7 @@ import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.flow.map
 import org.koin.compose.koinInject
 
-//val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.R)
@@ -76,12 +76,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-
-//            val USE_HAPTIC_FEEDBACK = booleanPreferencesKey("use_haptic_feedback")
-//            val useHapticFeedbackBool = LocalContext.current.dataStore.data.map { prefs ->
-//                prefs[USE_HAPTIC_FEEDBACK] == true
-//            }
-
             TopicsTheme {
                 val sharedStateHandler = koinInject<SharedStateHandler>()
                 val navController = rememberNavController()

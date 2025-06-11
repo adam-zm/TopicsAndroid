@@ -3,7 +3,9 @@ package com.example.topics.home
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.topics.SharedStateHandler
@@ -11,6 +13,7 @@ import com.example.topics.database.DatabaseConnector
 import com.example.topics.Topic
 import com.example.topics.UiState
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -48,10 +51,15 @@ class HomeScreenViewModel(
     }
 
     fun toggleUseHapticFeedback(useHaptic: Boolean){
-        sharedStateHandler.toggleUseHaptics(useHaptic)
+        viewModelScope.launch {
+            sharedStateHandler.toggleHapticFeedbackBool(useHaptic)
+        }
     }
 
     init {
         fetchTopics()
+        viewModelScope.launch {
+            sharedStateHandler.onStartGetHapticBool()
+        }
     }
 }
